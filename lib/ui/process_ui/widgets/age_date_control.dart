@@ -115,13 +115,17 @@ class _AgeDateControlState extends State<AgeDateControl> {
           context.read<GlobalProvider>().feildDemographicsValues,
         );
   }
-  
+
   void _getSavedDate() {
-    if(context.read<GlobalProvider>().feildDemographicsValues.containsKey(widget.field.id)) {
-      String targetDateFormat = widget.field.format ??
-        "yyyy/MM/dd";
-            
-      String savedDate = context.read<GlobalProvider>().feildDemographicsValues[widget.field.id];
+    if (context
+        .read<GlobalProvider>()
+        .feildDemographicsValues
+        .containsKey(widget.field.id)) {
+      String targetDateFormat = widget.field.format ?? "yyyy/MM/dd";
+
+      String savedDate = context
+          .read<GlobalProvider>()
+          .feildDemographicsValues[widget.field.id];
       DateTime parsedDate = DateFormat(targetDateFormat).parse(savedDate);
       _dayController.text = parsedDate.day.toString().padLeft(2, '0');
       _monthController.text = parsedDate.month.toString().padLeft(2, '0');

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,12 +14,14 @@ import 'package:registration_client/provider/registration_task_provider.dart';
 import 'package:registration_client/ui/process_ui/widgets/age_date_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/biometric_capture_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/checkbox_control.dart';
+import 'package:registration_client/ui/process_ui/widgets/document_upload_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/dropdown_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/html_box_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/custom_label.dart';
 
 import 'package:registration_client/ui/process_ui/widgets/button_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/textbox_control.dart';
+import 'package:registration_client/ui/scanner/scanner.dart';
 import 'radio_button_control.dart';
 
 class NewProcessScreenContent extends StatefulWidget {
@@ -37,6 +42,8 @@ class _NewProcessScreenContentState extends State<NewProcessScreenContent> {
     super.initState();
   }
 
+  Map<String, dynamic> formValues = {};
+
   Widget widgetType(Field e) {
     RegExp regexPattern = RegExp(r'^.*$');
 
@@ -46,106 +53,45 @@ class _NewProcessScreenContentState extends State<NewProcessScreenContent> {
         regexPattern = RegExp(validation);
       }
     }
-
-    if (e.controlType == "checkbox") {
-      return CheckboxControl(field: e);
-    }
-    if (e.controlType == "html") {
-      return HtmlBoxControl(field: e);
-    }
-    if (e.controlType == "biometrics") {
-      return BiometricCaptureControl(field: e);
-    }
-    if (e.controlType == "button") {
-      if (e.subType == "preferredLang") {
-        return ButtonControl(field: e);
-      }
-
-      if (e.subType == "gender" || e.subType == "residenceStatus") {
-        Map<String, List<String>> values = {
-          'gender': ["Female", "Male", "Others"],
-          'residenceStatus': ["Permanent", "Temporary"],
-        };
-        return Card(
-          elevation: 0,
-          margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomLabel(feild: e),
-                RadioButtonControl(
-                  id: e.id ?? "",
-                  values: values[e.subType] ?? [],
-                  type: e.type ?? "",
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-      return Text("${e.controlType}");
-    }
-    if (e.controlType == "textbox") {
-      return TextBoxControl(e: e, validation: regexPattern);
-    }
-    if (e.controlType == "dropdown") {
-      List<String?> options = [];
-      LocationResponse? locationResponse =
-          context.watch<LocationProvider>().locationResponse;
-      if (locationResponse != null) {
-        switch (e.subType) {
-          case "Region":
-            options = locationResponse.regionList;
-            break;
-          case "Province":
-            options = locationResponse.provinceList;
-            break;
-          case "City":
-            options = locationResponse.cityList;
-            break;
-          case "Zone":
-            options = locationResponse.zoneList;
-            break;
-          case "Postal Code":
-            options = locationResponse.postalCodeList;
-            break;
-          default:
+    switch (e.controlType) {
+      case "checkbox":
+        return CheckboxControl(field: e);
+      case "html":
+        return HtmlBoxControl(field: e);
+      case "biometrics":
+        return BiometricCaptureControl(field: e);
+      case "button":
+        if (e.subType == "preferredLang") {
+          return ButtonControl(field: e);
         }
-      }
-
-      return Card(
-        elevation: 0,
-        margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomLabel(feild: e),
-              const SizedBox(
-                height: 10,
-              ),
-              DropDownControl(
-                validation: regexPattern,
-                id: e.id ?? "",
-                options: options,
-                type: e.type ?? "",
-              ),
-            ],
-          ),
-        ),
-      );
+        if (e.subType == "gender" || e.subType == "residenceStatus") {
+          return RadioButtonControl(field: e);
+        }
+        return Text("${e.controlType}");
+      case "textbox":
+        return TextBoxControl(e: e, validation: regexPattern);
+      case "dropdown":
+        return DropDownControl(
+          validation: regexPattern,
+          field: e,
+        );
+      case "ageDate":
+        return AgeDateControl(
+          field: e,
+          validation: regexPattern,
+        );
+      case "fileupload":
+        //return Text("The sub type is${e.subType}");
+        //return a widget for each subtype the widget is
+        //bool isMobile = MediaQuery.of(context).size.width < 750;
+        // return document_upload_card(isMobile, e, regexPattern);
+        return DocumentUploadControl(
+          field: e,
+          validation: regexPattern,
+        );
+      default:
+        return Text("${e.controlType}");
     }
-    if (e.controlType == "ageDate") {
-      return AgeDateControl(
-        field: e,
-        validation: regexPattern,
-      );
-    }
-
-    return Text("${e.controlType}");
   }
 
   @override
