@@ -60,7 +60,7 @@ public class DynamicDetailsApi implements DynamicResponsePigeon.DynamicResponseA
             documentResponse=this.masterDataService.getDocumentTypes(categoryCode,applicantType,langCode);
             Log.e(getClass().getSimpleName(), "Fetch Document values: " + documentResponse);
         }catch(Exception e){
-            Log.e(getClass().getSimpleName(), "Fetch document values: " + Arrays.toString(e.getStackTrace()));
+            Log.e(getClass().getSimpleName(), "Fetch document values Failed: " + Arrays.toString(e.getStackTrace()));
         }
         result.success(documentResponse);
 

@@ -1,13 +1,15 @@
-import 'dart:convert';
-import 'dart:developer';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
 import 'package:registration_client/model/field.dart';
 import 'package:registration_client/model/screen.dart';
+//import 'package:registration_client/pigeon/location_response_pigeon.dart';
 import 'package:registration_client/provider/global_provider.dart';
+//import 'package:registration_client/provider/location_provider.dart';
 import 'package:registration_client/provider/registration_task_provider.dart';
 import 'package:registration_client/ui/process_ui/widgets/age_date_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/biometric_capture_control.dart';
@@ -19,7 +21,7 @@ import 'package:registration_client/ui/process_ui/widgets/custom_label.dart';
 
 import 'package:registration_client/ui/process_ui/widgets/button_control.dart';
 import 'package:registration_client/ui/process_ui/widgets/textbox_control.dart';
-import '../../../platform_spi/registration.dart';
+import 'package:registration_client/ui/scanner/scanner.dart';
 import 'radio_button_control.dart';
 
 class NewProcessScreenContent extends StatefulWidget {
@@ -36,8 +38,11 @@ class NewProcessScreenContent extends StatefulWidget {
 class _NewProcessScreenContentState extends State<NewProcessScreenContent> {
   @override
   void initState() {
+    //context.read<LocationProvider>().setLocationResponse("eng");
     super.initState();
   }
+
+  Map<String, dynamic> formValues = {};
 
   Widget widgetType(Field e) {
     RegExp regexPattern = RegExp(r'^.*$');
@@ -48,7 +53,6 @@ class _NewProcessScreenContentState extends State<NewProcessScreenContent> {
         regexPattern = RegExp(validation);
       }
     }
-
     switch (e.controlType) {
       case "checkbox":
         return CheckboxControl(field: e);
@@ -77,29 +81,16 @@ class _NewProcessScreenContentState extends State<NewProcessScreenContent> {
           validation: regexPattern,
         );
       case "fileupload":
+        //return Text("The sub type is${e.subType}");
+        //return a widget for each subtype the widget is
+        //bool isMobile = MediaQuery.of(context).size.width < 750;
+        // return document_upload_card(isMobile, e, regexPattern);
         return DocumentUploadControl(
           field: e,
           validation: regexPattern,
         );
       default:
         return Text("${e.controlType}");
-    }
-  }
-
-  evaluateMVEL(
-      String fieldData, String? engine, String? expression, Field e) async {
-    final Registration registration = Registration();
-    registration.evaluateMVEL(fieldData, expression!).then((value) {
-      context.read<GlobalProvider>().setMvelValues(e.id!, value);
-    });
-  }
-
-  _checkMvel(Field e) {
-    if (e.required == false) {
-      if (e.requiredOn!.isNotEmpty) {
-        evaluateMVEL(jsonEncode(e.toJson()), e.requiredOn?[0]?.engine,
-            e.requiredOn?[0]?.expr, e);
-      }
     }
   }
 
@@ -110,11 +101,8 @@ class _NewProcessScreenContentState extends State<NewProcessScreenContent> {
       child: Column(
         children: [
           ...widget.screen.fields!.map((e) {
-            _checkMvel(e!);
-            if (e.inputRequired == true) {
-              return context.watch<GlobalProvider>().mvelvalues[e.id] ?? true
-                  ? widgetType(e)
-                  : Container();
+            if (e!.inputRequired == true) {
+              return widgetType(e);
             }
             return Container();
           }).toList(),

@@ -7,8 +7,8 @@ import 'package:registration_client/platform_spi/document.dart';
 
 class DocumentImpl implements Document {
   @override
-  Future<void> addDocument(String fieldId, String docType, String reference,
-      List<String> bytes) async {
+  Future<void> addDocument(
+      String fieldId, String docType, String reference, Uint8List bytes) async {
     try {
       await DocumentApi().addDocument(fieldId, docType, reference, bytes);
     } on PlatformException {
@@ -30,8 +30,8 @@ class DocumentImpl implements Document {
   }
 
   @override
-  Future<List<String?>> getScannedPages(String fieldId) async {
-    List<String?> scannedPages = [];
+  Future<List<Uint8List?>> getScannedPages(String fieldId) async {
+    List<Uint8List?> scannedPages = [];
     try {
       scannedPages = await DocumentApi().getScannedPages(fieldId);
     } on PlatformException {
