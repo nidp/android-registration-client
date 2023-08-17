@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'dart:ffi';
+import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:registration_client/model/process.dart';
@@ -48,11 +50,20 @@ class GlobalProvider with ChangeNotifier {
   Map<String, bool> _mvelValues = {};
 
   Map<int, String> _hierarchyValues = {};
+  Map<String, List<Uint8List?>> _scannedPages = {};
 
   String _regId = "";
   String _ageGroup = "";
 
   //GettersSetters
+  setScannedPages(String field, List<Uint8List?> value) {
+    _scannedPages[field] = value;
+
+    notifyListeners();
+  }
+
+  Map<String, List<Uint8List?>> get scannedPages => _scannedPages;
+
   String get ageGroup => this._ageGroup;
 
   set ageGroup(String value) {

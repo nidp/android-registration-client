@@ -30,7 +30,17 @@ class DocumentUploadControl extends StatefulWidget {
 class _DocumentUploadControlState extends State<DocumentUploadControl> {
   @override
   void initState() {
-    _getSavedDocument();
+    //int here instead of calling the api to get the image
+    //load from the map
+    final scannedPagesMap =
+        context.read<GlobalProvider>().scannedPages[widget.field.id]!;
+
+    print("response is ***************${scannedPagesMap}");
+    setState(() {
+      imageBytesList = scannedPagesMap;
+    });
+
+    // _getSavedDocument();
 
     super.initState();
   }
@@ -47,6 +57,8 @@ class _DocumentUploadControlState extends State<DocumentUploadControl> {
     final listofscannedDoc = await context
         .read<RegistrationTaskProvider>()
         .getScannedDocument(widget.field.id!);
+
+    //here get from the provider
     setState(() {
       imageBytesList = listofscannedDoc;
     });
@@ -56,23 +68,19 @@ class _DocumentUploadControlState extends State<DocumentUploadControl> {
     final bytes = await getImageBytes(item);
 
     Uint8List myBytes = Uint8List.fromList(bytes);
-    // setState(() {
-    //   poaList.add(item);
-    // });
+
     context
         .read<RegistrationTaskProvider>()
         .addDocument(e.id!, e.type!, "reference", myBytes);
   }
 
   Future<void> getScannedDocuments(Field e) async {
-    // final listofscannedDoc = await context
-    //     .read<RegistrationTaskProvider>()
-    //     .getScannedDocument(e.id!);
     try {
       final listofscannedDoc = await DocumentApi().getScannedPages(e.id!);
+
+      context.read<GlobalProvider>().setScannedPages(e.id!, listofscannedDoc);
       setState(() {
         imageBytesList = listofscannedDoc;
-        //imageBytesList = bytes;
       });
     } catch (e) {
       print("Error while getting scanned pages ${e}");
@@ -128,7 +136,10 @@ class _DocumentUploadControlState extends State<DocumentUploadControl> {
                                         Scanner(title: "Scan Document")),
                               );
                               //print('fileuploadFile $doc');
-                              addDocument(doc, widget.field);
+                              //addDocument(doc, widget.field);
+                              await addDocument(doc, widget.field);
+
+                              await getScannedDocuments(widget.field);
                             },
                             child: Text(
                               "Scan",

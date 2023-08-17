@@ -68,23 +68,27 @@ class ButtonControl extends StatelessWidget {
                                   .fieldInputValue
                                   .containsKey(field.id))
                               ? (context
-                                  .watch<GlobalProvider>()
-                                  .fieldInputValue[field.id]==context
-                          .read<GlobalProvider>()
-                          .fieldDisplayValues[field.id][i])?true:false
+                                          .watch<GlobalProvider>()
+                                          .fieldInputValue[field.id] ==
+                                      context
+                                          .read<GlobalProvider>()
+                                          .fieldDisplayValues[field.id][i])
+                                  ? true
+                                  : false
                               : false,
                           onChanged: (value) async {
                             context.read<GlobalProvider>().setInputMapValue(
                                 field.id!,
                                 context
-                          .read<GlobalProvider>()
-                          .fieldDisplayValues[field.id][i],
+                                    .read<GlobalProvider>()
+                                    .fieldDisplayValues[field.id][i],
                                 context.read<GlobalProvider>().fieldInputValue);
-                                
+
                             await DemographicsApi().addDemographicField(
-                                field.id!, context
-                          .read<GlobalProvider>()
-                          .fieldDisplayValues[field.id][i]);
+                                field.id!,
+                                context
+                                    .read<GlobalProvider>()
+                                    .fieldDisplayValues[field.id][i]);
                           },
                         ),
                       ),
